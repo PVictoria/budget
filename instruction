@@ -1,0 +1,4 @@
+1) postgesql
+2) pgadmin
+3) intellij idea (в Ultimate версии можно будет работать с бд прям из идеи)
+4) Запустить скрипты db.sql, trigger.sql, insert.sql
