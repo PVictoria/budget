@@ -2,3 +2,6 @@
 2) Установить pgadmin
 3) Установить intellij idea (в Ultimate версии можно будет работать с бд прям из идеи)
 4) Запустить скрипты db.sql, trigger.sql, insert.sql
+5) Запускаете приложение. Следующие запросы сожно запускать из командной строки, если установлен curl (в 10 винде он есть), или с момощью Postman.
+ curl -X GET "localhost:8080/1" - пользователь с id = 1
+ curl -X PUT "localhost:8080/user/create/vika/password" - созжается пользователь с именем vika, паролем password
