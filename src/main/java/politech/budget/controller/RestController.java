@@ -1,5 +1,7 @@
 package politech.budget.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,7 @@ public class RestController {
         this.userService = userService;
     }
 
+    @CrossOrigin(origins = "http://localhost:8080")
     @RequestMapping(value = "/user/create/{name}/{password}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.CREATED)
     public void put(@PathVariable("name") String name,
@@ -24,11 +27,14 @@ public class RestController {
         userService.put(name, password);
     }
 
+    @CrossOrigin(origins = "http://localhost:8080")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public String get(@PathVariable("id") long id) {
+    public String get(@PathVariable("id") long id) throws JsonProcessingException {
         User user = userService.getUser(id);
-        return user.toString();
+        System.out.println("====" + user.toString() + "====");
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(user);
     }
 }
