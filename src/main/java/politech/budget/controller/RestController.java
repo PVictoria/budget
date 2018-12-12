@@ -2,29 +2,31 @@ package politech.budget.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import politech.budget.builder.UserBuilder;
 import politech.budget.dto.User;
+import politech.budget.dto.UserPost;
 import politech.budget.service.UserService;
 
+@RequiredArgsConstructor
 @Controller
 public class RestController {
 
     private final UserService userService;
+    private final UserBuilder userBuilder;
 
-    @Autowired
-    public RestController(UserService userService) {
-        this.userService = userService;
-    }
 
-    @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/user/create/{name}/{password}", method = RequestMethod.PUT)
+    @CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*")
+    @RequestMapping(value = "/user/create", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void put(@PathVariable("name") String name,
-                    @PathVariable("password") String password) {
-        userService.put(name, password);
+    public @ResponseBody
+    User put(@RequestBody UserPost user) {
+        User user1 = userService.post(userBuilder.build(user));
+        System.out.println("------" + user1.getId());
+        return user1;
     }
 
     @CrossOrigin(origins = "http://localhost:8080")

@@ -19,7 +19,7 @@ public class UserService {
     }
 
     @Transactional
-    public void put(String name, String password) {
-        userRepository.put(name, password);
+    public User post(User user) {
+        return userRepository.saveAndFlush(user);
     }
 }

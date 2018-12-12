@@ -1,3 +1,8 @@
+drop table budget.operations;
+drop table budget.balance;
+drop table budget.articles;
+drop table budget.users;
+
 CREATE SCHEMA budget
   AUTHORIZATION postgres;
 
