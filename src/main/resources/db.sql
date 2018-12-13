@@ -20,7 +20,7 @@ CREATE TABLE budget.budget.articles (
 
 CREATE TABLE budget.budget.balance (
   id          SERIAL PRIMARY KEY,
-  create_date TIMESTAMP(3),
+  create_date DATE,
   debit       NUMERIC(18, 2),
   credit      NUMERIC(18, 2),
   amount      NUMERIC(18, 2),
@@ -35,7 +35,7 @@ CREATE TAble budget.budget.operations (
   constraint fk_op_articles foreign key (article_id) references budget.articles (id),
   debit       NUMERIC(18, 2),
   credit      NUMERIC(18, 2),
-  create_date TIMESTAMP(3),
+  create_date DATE,
   balance_id  SERIAL,
   constraint fk_op_balance foreign key (balance_id) references budget.balance (id),
   user_id     SERIAL,

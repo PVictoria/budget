@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import politech.budget.builder.UserBuilder;
 import politech.budget.dto.User;
 import politech.budget.dto.UserPost;
-import politech.budget.service.UserService;
+import politech.budget.service.Dao;
 
 @RequiredArgsConstructor
 @Controller
 public class RestController {
 
-    private final UserService userService;
+    private final Dao dao;
     private final UserBuilder userBuilder;
 
 
@@ -24,7 +24,7 @@ public class RestController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     User put(@RequestBody UserPost user) {
-        User user1 = userService.post(userBuilder.build(user));
+        User user1 = dao.postUser(userBuilder.build(user));
         System.out.println("------" + user1.getId());
         return user1;
     }
@@ -34,9 +34,11 @@ public class RestController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public String get(@PathVariable("id") long id) throws JsonProcessingException {
-        User user = userService.getUser(id);
+        User user = dao.getUser(id);
         System.out.println("====" + user.toString() + "====");
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(user);
     }
+
+
 }
