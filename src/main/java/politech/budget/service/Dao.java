@@ -21,9 +21,14 @@ public class Dao {
     private final OperationsRepository operationsRepository;
     private final BalanceRepository balanceRepository;
 
-
     public User getUser(Integer id) {
         return userRepository.findUserById(id);
+    }
+
+    public User getUser(User user) {
+        String name = user.getName();
+        String password = user.getPassword();
+        return userRepository.findUserByNameAndPassword(name, password);
     }
 
     public User getUserByName(String userName) {

@@ -32,13 +32,20 @@ public class RestController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/user", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public User getUser(@RequestBody User user) {
+        return dao.getUser(user);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8080")
     @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public User getUser(@PathVariable("id") Integer id) {
         return dao.getUser(id);
     }
-
     /*
      * Article
      */
