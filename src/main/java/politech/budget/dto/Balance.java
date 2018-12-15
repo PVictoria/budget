@@ -15,7 +15,7 @@ public class Balance {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private Timestamp createDate;
     private Integer debit;
     private Integer credit;

@@ -14,11 +14,11 @@ public class Operation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long articleId;
+    private Integer id;
+    private Integer articleId;
     private Integer debit;
     private Integer credit;
     private Timestamp createDate;
-    private Long balanceId;
+    private Integer balanceId;
     private Integer userId;
 }

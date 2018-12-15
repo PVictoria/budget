@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import politech.budget.builder.UserBuilder;
-import politech.budget.dto.Article;
-import politech.budget.dto.Operation;
-import politech.budget.dto.User;
-import politech.budget.dto.UserPost;
+import politech.budget.dto.*;
 import politech.budget.service.Dao;
 
 import java.util.List;
@@ -35,7 +32,7 @@ public class RestController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public User getUser(@PathVariable("id") long id) {
+    public User getUser(@PathVariable("id") Integer id) {
         return dao.getUser(id);
     }
 
@@ -76,6 +73,15 @@ public class RestController {
     public List<Operation> getOperations(@RequestBody User user) {
         return dao.findOperationsByUserId(user.getId());
     }
+
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/operation/article", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<Operation> getOperationsArticle(@RequestBody UserArticle userArticle) {
+        return dao.findOperationsByUserIdAndArticle(userArticle.getUserName(), userArticle.getArticleName());
+    }
+
 
 
     /*

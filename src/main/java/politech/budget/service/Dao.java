@@ -22,8 +22,12 @@ public class Dao {
     private final BalanceRepository balanceRepository;
 
 
-    public User getUser(long id) {
+    public User getUser(Integer id) {
         return userRepository.findUserById(id);
+    }
+
+    public User getUserByName(String userName) {
+        return userRepository.findUserByName(userName);
     }
 
     @Transactional
@@ -33,6 +37,10 @@ public class Dao {
 
     public List<Article> getArticles() {
         return articleRepository.getAll();
+    }
+
+    public Article findArticleByName(String name) {
+        return articleRepository.findArticleByName(name);
     }
 
     @Transactional
@@ -49,17 +57,19 @@ public class Dao {
         return operationsRepository.findOperationsByUserId(userId);
     }
 
-    public List<Operation> findOperationsByUserIdAndArticle(Long userId, Article article) {
-        return operationsRepository.findOperationsByUserIdAndArticleId(userId, article.getId());
+    public List<Operation> findOperationsByUserIdAndArticle(String userName, String articleName) {
+        Integer userId = userRepository.findUserByName(userName).getId();
+        Integer articleId = articleRepository.findArticleByName(articleName).getId();
+        return operationsRepository.findOperationsByUserIdAndArticleId(userId, articleId);
     }
 
-    public List<Operation> findOperationsByUserIdAndCreationTime(Long userId, Date date) {
+    public List<Operation> findOperationsByUserIdAndCreationTime(Integer userId, Date date) {
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(31);
         return operationsRepository.findOperationsByUserIdAndCreateDate(userId, startDay, endDay);
     }
 
-    public List<Operation> findOperationsByUserIdAndArticleIdAndCreationTime(Long userId, Article article, Date date) {
+    public List<Operation> findOperationsByUserIdAndArticleIdAndCreationTime(Integer userId, Article article, Date date) {
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(31);
         return operationsRepository.findOperationsByUserIdAAndArticleIdAndCreateDate(userId, article.getId(), startDay, endDay);

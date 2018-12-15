@@ -21,4 +21,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     @Modifying
     void deleteArticleByName(@Param("name") String name);
 
+    @Query("SELECT a FROM Article a WHERE a.name = :name")
+    Article findArticleByName(@Param("name") String name);
+
 }

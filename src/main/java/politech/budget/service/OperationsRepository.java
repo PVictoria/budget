@@ -18,17 +18,17 @@ public interface OperationsRepository extends JpaRepository<Operation, Long> {
     List<Operation> findOperationsByUserId(@Param("userId") Integer userId);
 
     @Query("SELECT o FROM Operation o WHERE o.userId = :userId AND o.articleId = :articleId")
-    List<Operation> findOperationsByUserIdAndArticleId(@Param("userId") Long userId,
-                                                       @Param("articleId") Long articleId);
+    List<Operation> findOperationsByUserIdAndArticleId(@Param("userId") Integer userId,
+                                                       @Param("articleId") Integer articleId);
 
     @Query("SELECT o FROM Operation o WHERE o.userId = :userId AND o.createDate BETWEEN :startTime AND :endTime")
-    List<Operation> findOperationsByUserIdAndCreateDate(@Param("userId") Long userId,
+    List<Operation> findOperationsByUserIdAndCreateDate(@Param("userId") Integer userId,
                                                         @Param("startTime") LocalDate startTime,
                                                         @Param("endTime") LocalDate endTime);
 
     @Query("SELECT o FROM Operation o WHERE o.userId = :userId AND o.articleId = :articleId AND o.createDate BETWEEN :startTime AND :endTime")
-    List<Operation> findOperationsByUserIdAAndArticleIdAndCreateDate(@Param("userId") Long userId,
-                                                                     @Param("articleId") Long articleId,
+    List<Operation> findOperationsByUserIdAAndArticleIdAndCreateDate(@Param("userId") Integer userId,
+                                                                     @Param("articleId") Integer articleId,
                                                                      @Param("startTime") LocalDate startTime,
                                                                      @Param("endTime") LocalDate endTime);
 }

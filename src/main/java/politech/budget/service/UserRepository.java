@@ -13,6 +13,8 @@ import politech.budget.dto.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT u FROM User u  WHERE id = :id ")
-    User findUserById(@Param("id") Long id);
+    User findUserById(@Param("id") Integer id);
 
+    @Query(value = "SELECT u FROM User u WHERE u.name = :name")
+    User findUserByName(@Param("name") String name);
 }
