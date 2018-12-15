@@ -15,5 +15,5 @@ public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer name;
+    private String name;
 }

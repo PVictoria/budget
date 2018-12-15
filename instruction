@@ -5,3 +5,8 @@
 5) Запускаете приложение. Следующие запросы сожно запускать из командной строки, если установлен curl (в 10 винде он есть), или с момощью Postman.
  curl -X GET "localhost:8080/1" - пользователь с id = 1
  curl -X PUT "localhost:8080/user/create/vika/password" - созжается пользователь с именем vika, паролем password
+6) Установить React
+7) Настроить по статье (возможно и не потребуется) https://m.habr.com/post/321552/
+
+netstat -ano | findstr :8080
+taskkill /PID 4176 /F

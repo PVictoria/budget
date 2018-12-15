@@ -36,8 +36,7 @@ CREATE TAble budget.budget.operations (
   debit       NUMERIC(18, 2),
   credit      NUMERIC(18, 2),
   create_date DATE,
-  balance_id  SERIAL,
-  constraint fk_op_balance foreign key (balance_id) references budget.balance (id),
+  balance_id  INTEGER references budget.balance,
   user_id     SERIAL,
   constraint fk_op_users foreign key (user_id) references budget.users (id)
 );

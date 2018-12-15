@@ -41,8 +41,8 @@ public class Dao {
     }
 
     @Transactional
-    public void deleteArticle(Long id) {
-        articleRepository.deleteById(id);
+    public void deleteArticle(String name) {
+        articleRepository.deleteArticleByName(name);
     }
 
     public List<Operation> findOperationsByUserId(Long userId) {
