@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import politech.budget.builder.UserBuilder;
-import politech.budget.dto.Article;
-import politech.budget.dto.Operation;
-import politech.budget.dto.User;
-import politech.budget.dto.UserPost;
+import politech.budget.dto.*;
 import politech.budget.service.Dao;
 
 import java.text.ParseException;
@@ -35,7 +32,7 @@ public class RestController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public User getUser(@PathVariable("id") Integer id) {
@@ -132,9 +129,30 @@ public class RestController {
     /*
      * Balance
      */
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/balance/{userName}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<Balance> getBalaceByUserName(@PathVariable("userName") String userName) {
+        return dao.findBalanceByUserName(userName);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/balance/{userName}", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public Balance postArticle(@RequestBody Balance balance) {
+        return dao.postBalance(balance);
+    }
 
 
-
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/balance", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void deleteArticle(@RequestBody Balance balance) {
+        dao.deleteBalance(balance);
+    }
 
     /*
      * Statistics

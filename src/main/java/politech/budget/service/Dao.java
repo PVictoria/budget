@@ -96,6 +96,11 @@ public class Dao {
         return balanceRepository.findBalanceByUserId(userId);
     }
 
+    public List<Balance> findBalanceByUserName(String userName) {
+        Integer userId = userRepository.findUserByName(userName).getId();
+        return balanceRepository.findBalanceByUserId(userId);
+    }
+
     @Transactional
     public Balance postBalance(Balance balance) {
         return balanceRepository.saveAndFlush(balance);
