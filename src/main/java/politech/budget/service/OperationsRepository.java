@@ -15,7 +15,7 @@ import java.util.List;
 public interface OperationsRepository extends JpaRepository<Operation, Long> {
 
     @Query("SELECT o FROM Operation o WHERE o.userId = :userId")
-    List<Operation> findOperationsByUserId(@Param("userId") Long userId);
+    List<Operation> findOperationsByUserId(@Param("userId") Integer userId);
 
     @Query("SELECT o FROM Operation o WHERE o.userId = :userId AND o.articleId = :articleId")
     List<Operation> findOperationsByUserIdAndArticleId(@Param("userId") Long userId,

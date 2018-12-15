@@ -45,7 +45,7 @@ public class Dao {
         articleRepository.deleteArticleByName(name);
     }
 
-    public List<Operation> findOperationsByUserId(Long userId) {
+    public List<Operation> findOperationsByUserId(Integer userId) {
         return operationsRepository.findOperationsByUserId(userId);
     }
 
