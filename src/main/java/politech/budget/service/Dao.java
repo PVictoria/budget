@@ -53,7 +53,8 @@ public class Dao {
         articleRepository.deleteArticleByName(name);
     }
 
-    public List<Operation> findOperationsByUserId(Integer userId) {
+    public List<Operation> findOperationsByUserId(String userName) {
+        Integer userId = userRepository.findUserByName(userName).getId();
         return operationsRepository.findOperationsByUserId(userId);
     }
 
@@ -69,10 +70,14 @@ public class Dao {
         return operationsRepository.findOperationsByUserIdAndCreateDate(userId, startDay, endDay);
     }
 
-    public List<Operation> findOperationsByUserIdAndArticleIdAndCreationTime(Integer userId, Article article, Date date) {
+    public List<Operation> findOperationsByUserIdAndArticleIdAndCreationTime(String userName, String articleName, Date date) {
+        Integer userId = userRepository.findUserByName(userName).getId();
+        Integer articleId = articleRepository.findArticleByName(articleName).getId();
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
+        Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(31);
-        return operationsRepository.findOperationsByUserIdAAndArticleIdAndCreateDate(userId, article.getId(), startDay, endDay);
+        Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        return operationsRepository.findOperationsByUserIdAAndArticleIdAndCreateDate(userId, articleId, date1, date2);
     }
 
     @Transactional
@@ -80,11 +85,11 @@ public class Dao {
         return operationsRepository.saveAndFlush(operation);
     }
 
-    public void deleteOperation(Operation operation) {
-        operationsRepository.delete(operation);
+    public void deleteOperation(Integer operationId) {
+        operationsRepository.deleteById(operationId);
     }
 
-    public List<Balance> findBalanceByUserId(Long userId) {
+    public List<Balance> findBalanceByUserId(Integer userId) {
         return balanceRepository.findBalanceByUserId(userId);
     }
 

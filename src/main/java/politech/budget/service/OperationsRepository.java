@@ -8,11 +8,12 @@ import org.springframework.stereotype.Repository;
 import politech.budget.dto.Operation;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @EnableJpaRepositories
 @Repository
-public interface OperationsRepository extends JpaRepository<Operation, Long> {
+public interface OperationsRepository extends JpaRepository<Operation, Integer> {
 
     @Query("SELECT o FROM Operation o WHERE o.userId = :userId")
     List<Operation> findOperationsByUserId(@Param("userId") Integer userId);
@@ -29,6 +30,6 @@ public interface OperationsRepository extends JpaRepository<Operation, Long> {
     @Query("SELECT o FROM Operation o WHERE o.userId = :userId AND o.articleId = :articleId AND o.createDate BETWEEN :startTime AND :endTime")
     List<Operation> findOperationsByUserIdAAndArticleIdAndCreateDate(@Param("userId") Integer userId,
                                                                      @Param("articleId") Integer articleId,
-                                                                     @Param("startTime") LocalDate startTime,
-                                                                     @Param("endTime") LocalDate endTime);
+                                                                     @Param("startTime") Date startTime,
+                                                                     @Param("endTime") Date endTime);
 }

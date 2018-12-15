@@ -12,7 +12,7 @@ import java.util.List;
 
 @EnableJpaRepositories
 @Repository
-public interface ArticleRepository extends JpaRepository<Article, Long> {
+public interface ArticleRepository extends JpaRepository<Article, Integer> {
 
     @Query("SELECT a FROM Article a")
     List<Article> getAll();

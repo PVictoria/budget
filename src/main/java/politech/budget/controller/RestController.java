@@ -5,9 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import politech.budget.builder.UserBuilder;
-import politech.budget.dto.*;
+import politech.budget.dto.Article;
+import politech.budget.dto.Operation;
+import politech.budget.dto.User;
+import politech.budget.dto.UserPost;
 import politech.budget.service.Dao;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -67,22 +73,49 @@ public class RestController {
      * Operations
      */
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/operation", method = RequestMethod.GET)
+    @RequestMapping(value = "/operation/{userName}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<Operation> getOperations(@RequestBody User user) {
-        return dao.findOperationsByUserId(user.getId());
+    public List<Operation> getOperations(@PathVariable("userName") String userName) {
+        return dao.findOperationsByUserId(userName);
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/operation/article", method = RequestMethod.GET)
+    @RequestMapping(value = "/operation/{userName}/article/{articleName}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<Operation> getOperationsArticle(@RequestBody UserArticle userArticle) {
-        return dao.findOperationsByUserIdAndArticle(userArticle.getUserName(), userArticle.getArticleName());
+    public List<Operation> getOperationsArticle(@PathVariable("userName") String userName, @PathVariable("articleName") String articleName) {
+        return dao.findOperationsByUserIdAndArticle(userName, articleName);
     }
 
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/operation/{userName}/article/{articleName}/date/{date}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<Operation> getOperationsArticleBetweenDates(@PathVariable("userName") String userName,
+                                                            @PathVariable("articleName") String articleName,
+                                                            @PathVariable("date") String date) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
+        Date date1 = format.parse(date);
+        return dao.findOperationsByUserIdAndArticleIdAndCreationTime(userName, articleName, date1);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/operation", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public Operation postOperation(@RequestBody Operation operation) {
+        return dao.postOperation(operation);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/operation", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void deleteOperation(@RequestBody Operation operation) {
+        dao.deleteOperation(operation.getId());
+    }
 
     /*
      * Balance

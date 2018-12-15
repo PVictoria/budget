@@ -11,8 +11,8 @@ import java.util.List;
 
 @EnableJpaRepositories
 @Repository
-public interface BalanceRepository extends JpaRepository<Balance, Long> {
+public interface BalanceRepository extends JpaRepository<Balance, Integer> {
 
     @Query("SELECT b FROM Balance b WHERE b.userId = :userId")
-    public List<Balance> findBalanceByUserId(@Param("userId") Long userId);
+    List<Balance> findBalanceByUserId(@Param("userId") Integer userId);
 }
