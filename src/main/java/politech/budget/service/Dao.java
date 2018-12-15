@@ -64,10 +64,13 @@ public class Dao {
         return operationsRepository.findOperationsByUserIdAndArticleId(userId, articleId);
     }
 
-    public List<Operation> findOperationsByUserIdAndCreationTime(Integer userId, Date date) {
+    public List<Operation> findOperationsByUserIdAndCreationTime(String userName, Date date) {
+        Integer userId = userRepository.findUserByName(userName).getId();
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
+        Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(31);
-        return operationsRepository.findOperationsByUserIdAndCreateDate(userId, startDay, endDay);
+        Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        return operationsRepository.findOperationsByUserIdAndCreateDate(userId, date1, date2);
     }
 
     public List<Operation> findOperationsByUserIdAndArticleIdAndCreationTime(String userName, String articleName, Date date) {

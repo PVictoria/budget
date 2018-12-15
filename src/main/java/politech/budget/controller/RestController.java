@@ -102,6 +102,18 @@ public class RestController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/operation/{userName}/date/{date}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<Operation> getOperationsBetweenDates(@PathVariable("userName") String userName,
+                                                     @PathVariable("date") String date) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date date1 = format.parse(date);
+        return dao.findOperationsByUserIdAndCreationTime(userName, date1);
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:8080")
     @RequestMapping(value = "/operation", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -120,6 +132,8 @@ public class RestController {
     /*
      * Balance
      */
+
+
 
 
     /*
