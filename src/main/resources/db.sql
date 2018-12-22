@@ -8,14 +8,14 @@ CREATE SCHEMA budget
 
 CREATE TABLE budget.budget.users (
   id       SERIAL PRIMARY KEY,
-  name     VARCHAR(50),
+  name     VARCHAR(50) UNIQUE ,
   password VARCHAR(50)
 );
 
 
 CREATE TABLE budget.budget.articles (
   id   SERIAL PRIMARY KEY,
-  name VARCHAR(50)
+  name VARCHAR(50) UNIQUE
 );
 
 CREATE TABLE budget.budget.balance (
