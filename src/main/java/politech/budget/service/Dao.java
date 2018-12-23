@@ -2,6 +2,7 @@ package politech.budget.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import politech.budget.dto.Article;
 import politech.budget.dto.Balance;
@@ -44,7 +45,7 @@ public class Dao {
         return articleRepository.getAll();
     }
 
-    public Article findArticleByName(String name) {
+    public Article getArticlesByName(String name) {
         return articleRepository.findArticleByName(name);
     }
 
@@ -53,9 +54,11 @@ public class Dao {
         return articleRepository.saveAndFlush(article);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteArticle(String name) {
-        articleRepository.deleteArticleByName(name);
+        Article article = getArticlesByName(name);
+        articleRepository.delete(article);
+        articleRepository.flush();
     }
 
     public List<Operation> findOperationsByUserId(String userName) {

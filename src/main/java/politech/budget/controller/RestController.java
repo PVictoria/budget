@@ -66,11 +66,11 @@ public class RestController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/article", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/article/{articleName}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void deleteArticle(@RequestBody Article article) {
-        dao.deleteArticle(article.getName());
+    public void deleteArticle(@PathVariable("articleName") String articleName) {
+        dao.deleteArticle(articleName);
     }
 
     /*

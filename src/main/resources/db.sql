@@ -15,7 +15,8 @@ CREATE TABLE budget.budget.users (
 
 CREATE TABLE budget.budget.articles (
   id   SERIAL PRIMARY KEY,
-  name VARCHAR(50) UNIQUE
+  name VARCHAR(50),
+  constraint article_name unique (name)
 );
 
 CREATE TABLE budget.budget.balance (
