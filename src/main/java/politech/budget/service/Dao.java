@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import politech.budget.dto.Article;
-import politech.budget.dto.Balance;
-import politech.budget.dto.Operation;
-import politech.budget.dto.User;
+import politech.budget.builder.OperationBuilder;
+import politech.budget.dto.*;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -21,6 +19,7 @@ public class Dao {
     private final ArticleRepository articleRepository;
     private final OperationsRepository operationsRepository;
     private final BalanceRepository balanceRepository;
+    private final OperationBuilder operationBuilder;
 
     public User getUser(Integer id) {
         return userRepository.findUserById(id);
@@ -61,8 +60,8 @@ public class Dao {
         articleRepository.flush();
     }
 
-    public List<Operation> findOperationsByUserId(String userName) {
-        Integer userId = userRepository.findUserByName(userName).getId();
+    public List<Operation> findOperationsByUserId(Integer userId) {
+//        Integer userId = userRepository.findUserByName(userName).getId();
         return operationsRepository.findOperationsByUserId(userId);
     }
 
@@ -92,7 +91,9 @@ public class Dao {
     }
 
     @Transactional
-    public Operation postOperation(Operation operation) {
+    public Operation postOperation(OperationPost operationPost) {
+        Article article = articleRepository.findArticleByName(operationPost.getArticleName());
+        Operation operation = operationBuilder.build(operationPost, article);
         return operationsRepository.saveAndFlush(operation);
     }
 

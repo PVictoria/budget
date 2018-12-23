@@ -77,10 +77,10 @@ public class RestController {
      * Operations
      */
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/operation/{userName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/operation/{userId}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<Operation> getOperations(@PathVariable("userName") String userName) {
+    public List<Operation> getOperations(@PathVariable("userId") Integer userName) {
         return dao.findOperationsByUserId(userName);
     }
 
@@ -121,8 +121,8 @@ public class RestController {
     @RequestMapping(value = "/operation", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public Operation postOperation(@RequestBody Operation operation) {
-        return dao.postOperation(operation);
+    public Operation postOperation(@RequestBody OperationPost operationPost) {
+        return dao.postOperation(operationPost);
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
