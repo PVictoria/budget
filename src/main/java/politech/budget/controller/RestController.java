@@ -80,8 +80,8 @@ public class RestController {
     @RequestMapping(value = "/operation/{userId}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<Operation> getOperations(@PathVariable("userId") Integer userName) {
-        return dao.findOperationsByUserId(userName);
+    public List<OperationGet> getOperations(@PathVariable("userId") Integer userId) {
+        return dao.findOperationsByUserId(userId);
     }
 
     @CrossOrigin(origins = "http://localhost:8080")

@@ -5,12 +5,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import politech.budget.builder.OperationBuilder;
+import politech.budget.builder.OperationGetBuilder;
 import politech.budget.dto.*;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -20,6 +23,7 @@ public class Dao {
     private final OperationsRepository operationsRepository;
     private final BalanceRepository balanceRepository;
     private final OperationBuilder operationBuilder;
+    private final OperationGetBuilder operationGetBuilder;
 
     public User getUser(Integer id) {
         return userRepository.findUserById(id);
@@ -60,9 +64,13 @@ public class Dao {
         articleRepository.flush();
     }
 
-    public List<Operation> findOperationsByUserId(Integer userId) {
-//        Integer userId = userRepository.findUserByName(userName).getId();
-        return operationsRepository.findOperationsByUserId(userId);
+    public List<OperationGet> findOperationsByUserId(Integer userId) {
+        List<Operation> operations = operationsRepository.findOperationsByUserId(userId);
+        List<Integer> articleIds = operations.stream()
+                .mapToInt(Operation::getArticleId).boxed().collect(Collectors.toList());
+        List<Article> articles = new ArrayList<>();
+        articleIds.forEach(id -> articles.add(articleRepository.findById(id).get()));
+        return operationGetBuilder.buildList(operations, articles);
     }
 
     public List<Operation> findOperationsByUserIdAndArticle(String userName, String articleName) {
