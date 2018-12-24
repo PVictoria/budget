@@ -14,7 +14,7 @@ public class OperationBuilder {
         Operation operation = new Operation();
         operation.setArticleId(article.getId());
         operation.setDebit(nonNull(operationPost.getDebit()) ? operationPost.getDebit() : null);
-        operation.setDebit(nonNull(operationPost.getCredit()) ? operationPost.getCredit() : null);
+        operation.setCredit(nonNull(operationPost.getCredit()) ? -operationPost.getCredit() : null);
         operation.setCreateDate(operationPost.getCreateDate());
         operation.setUserId(operationPost.getUserId());
         operation.setBalanceId(null);

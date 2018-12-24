@@ -66,6 +66,10 @@ public class Dao {
 
     public List<OperationGet> findOperationsByUserId(Integer userId) {
         List<Operation> operations = operationsRepository.findOperationsByUserId(userId);
+        return getOperationGet(operations);
+    }
+
+    private List<OperationGet> getOperationGet(List<Operation> operations) {
         List<Integer> articleIds = operations.stream()
                 .mapToInt(Operation::getArticleId).boxed().collect(Collectors.toList());
         List<Article> articles = new ArrayList<>();
@@ -73,29 +77,32 @@ public class Dao {
         return operationGetBuilder.buildList(operations, articles);
     }
 
-    public List<Operation> findOperationsByUserIdAndArticle(String userName, String articleName) {
-        Integer userId = userRepository.findUserByName(userName).getId();
+    public List<OperationGet> findOperationsByUserIdAndArticle(Integer userId, String articleName) {
+//        Integer userId = userRepository.findUserByName(userName).getId();
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
-        return operationsRepository.findOperationsByUserIdAndArticleId(userId, articleId);
+        List<Operation> operations = operationsRepository.findOperationsByUserIdAndArticleId(userId, articleId);
+        return getOperationGet(operations);
     }
 
-    public List<Operation> findOperationsByUserIdAndCreationTime(String userName, Date date) {
-        Integer userId = userRepository.findUserByName(userName).getId();
+    public List<OperationGet> findOperationsByUserIdAndCreationTime(Integer userId, Date date) {
+//        Integer userId = userRepository.findUserByName(userName).getId();
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(31);
         Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        return operationsRepository.findOperationsByUserIdAndCreateDate(userId, date1, date2);
+        List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(userId, date1, date2);
+        return getOperationGet(operations);
     }
 
-    public List<Operation> findOperationsByUserIdAndArticleIdAndCreationTime(String userName, String articleName, Date date) {
-        Integer userId = userRepository.findUserByName(userName).getId();
+    public List<OperationGet> findOperationsByUserIdAndArticleIdAndCreationTime(Integer userId, String articleName, Date date) {
+//        Integer userId = userRepository.findUserByName(userName).getId();
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(31);
         Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        return operationsRepository.findOperationsByUserIdAAndArticleIdAndCreateDate(userId, articleId, date1, date2);
+        List<Operation> operations = operationsRepository.findOperationsByUserIdAAndArticleIdAndCreateDate(userId, articleId, date1, date2);
+        return getOperationGet(operations);
     }
 
     @Transactional

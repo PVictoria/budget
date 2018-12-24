@@ -85,35 +85,35 @@ public class RestController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/operation/{userName}/article/{articleName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/operation/{userId}/article/{articleName}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<Operation> getOperationsArticle(@PathVariable("userName") String userName, @PathVariable("articleName") String articleName) {
-        return dao.findOperationsByUserIdAndArticle(userName, articleName);
+    public List<OperationGet> getOperationsArticle(@PathVariable("userId") Integer userId, @PathVariable("articleName") String articleName) {
+        return dao.findOperationsByUserIdAndArticle(userId, articleName);
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/operation/{userName}/article/{articleName}/date/{date}", method = RequestMethod.GET)
+    @RequestMapping(value = "/operation/{userId}/article/{articleName}/date/{date}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<Operation> getOperationsArticleBetweenDates(@PathVariable("userName") String userName,
-                                                            @PathVariable("articleName") String articleName,
-                                                            @PathVariable("date") String date) throws ParseException {
+    public List<OperationGet> getOperationsArticleBetweenDates(@PathVariable("userId") Integer userId,
+                                                               @PathVariable("articleName") String articleName,
+                                                               @PathVariable("date") String date) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
         Date date1 = format.parse(date);
-        return dao.findOperationsByUserIdAndArticleIdAndCreationTime(userName, articleName, date1);
+        return dao.findOperationsByUserIdAndArticleIdAndCreationTime(userId, articleName, date1);
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/operation/{userName}/date/{date}", method = RequestMethod.GET)
+    @RequestMapping(value = "/operation/{userId}/date/{date}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<Operation> getOperationsBetweenDates(@PathVariable("userName") String userName,
-                                                     @PathVariable("date") String date) throws ParseException {
+    public List<OperationGet> getOperationsBetweenDates(@PathVariable("userId") Integer userId,
+                                                        @PathVariable("date") String date) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date date1 = format.parse(date);
-        return dao.findOperationsByUserIdAndCreationTime(userName, date1);
+        return dao.findOperationsByUserIdAndCreationTime(userId, date1);
     }
 
 
@@ -126,11 +126,11 @@ public class RestController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/operation", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/operation/{operationId}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void deleteOperation(@RequestBody Operation operation) {
-        dao.deleteOperation(operation.getId());
+    public void deleteOperation(@PathVariable Integer operationId) {
+        dao.deleteOperation(operationId);
     }
 
     /*
