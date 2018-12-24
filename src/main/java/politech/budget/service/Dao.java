@@ -8,12 +8,13 @@ import politech.budget.builder.OperationBuilder;
 import politech.budget.builder.OperationGetBuilder;
 import politech.budget.dto.*;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
 @Service
@@ -78,31 +79,36 @@ public class Dao {
     }
 
     public List<OperationGet> findOperationsByUserIdAndArticle(Integer userId, String articleName) {
-//        Integer userId = userRepository.findUserByName(userName).getId();
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
         List<Operation> operations = operationsRepository.findOperationsByUserIdAndArticleId(userId, articleId);
         return getOperationGet(operations);
     }
 
     public List<OperationGet> findOperationsByUserIdAndCreationTime(Integer userId, Date date) {
-//        Integer userId = userRepository.findUserByName(userName).getId();
+        int lastDate = getLastDate(date);
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(31);
+        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
         Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(userId, date1, date2);
         return getOperationGet(operations);
     }
 
     public List<OperationGet> findOperationsByUserIdAndArticleIdAndCreationTime(Integer userId, String articleName, Date date) {
-//        Integer userId = userRepository.findUserByName(userName).getId();
+        int lastDate = getLastDate(date);
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(31);
+        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
         Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         List<Operation> operations = operationsRepository.findOperationsByUserIdAAndArticleIdAndCreateDate(userId, articleId, date1, date2);
         return getOperationGet(operations);
+    }
+
+    private int getLastDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(date.getYear(), date.getMonth(), date.getDay());
+        return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
     @Transactional
@@ -120,17 +126,44 @@ public class Dao {
         return balanceRepository.findBalanceByUserId(userId);
     }
 
-    public List<Balance> findBalanceByUserName(String userName) {
-        Integer userId = userRepository.findUserByName(userName).getId();
-        return balanceRepository.findBalanceByUserId(userId);
+    public List<Balance> findBalanceByUserName(Integer userId) {
+        List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
+        balanceByUserId.sort(Comparator.comparing(Balance::getId).reversed());
+        return balanceByUserId;
+
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Balance postBalance(Balance balance) {
-        return balanceRepository.saveAndFlush(balance);
+
+        Date date = balance.getCreateDate();
+        int lastDate = getLastDate(date);
+        LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
+        Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
+        Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(balance.getUserId(), date1, date2);
+        int credit = 0;
+        int debit = 0;
+        for (Operation operation : operations) {
+            credit += (nonNull(operation.getCredit()) ? operation.getCredit() : 0);
+            debit += (nonNull(operation.getDebit()) ? operation.getDebit() : 0);
+        }
+
+        balance.setCreateDate(new Timestamp(date2.getTime()));
+        balance.setCredit(credit);
+        balance.setDebit(debit);
+        balance.setAmount(debit - credit);
+
+        Balance balance1 = balanceRepository.saveAndFlush(balance);
+        operations.forEach(operation -> operationsRepository.updateBalance(operation.getId(), balance1.getId()));
+        return balance1;
     }
 
-    public void deleteBalance(Balance balance) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteBalance(Integer userId) {
+        Balance balance = balanceRepository.getLastBalance(userId);
+        operationsRepository.deleteBalance(balance.getId());
         balanceRepository.delete(balance);
     }
 

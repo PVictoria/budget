@@ -193,11 +193,16 @@ DECLARE
   counter NUMERIC;
   userId  INTEGER;
 BEGIN
-  userId = tg_argv [0] :: INTEGER;
-  SELECT COUNT(*) INTO counter from balance b WHERE b.create_date = new.create_date;
+  --userId = tg_argv [0] :: INTEGER;
+  SELECT COUNT(*) INTO counter from balance b WHERE b.create_date = new.create_date AND b.user_id = new.user_id;
   IF counter > 0
   THEN
     RAISE EXCEPTION 'Balance already exists!';
+  END IF;
+  SELECT COUNT(*) INTO counter from balance b WHERE b.create_date > new.create_date AND b.user_id = new.user_id;
+  IF counter > 0
+  THEN
+    RAISE EXCEPTION 'Balance period is closed!';
   END IF;
   RETURN new;
 END;
@@ -208,7 +213,9 @@ LANGUAGE plpgsql;
 CREATE TRIGGER second_balance
   before INSERT
   on budget.balance
-  FOR EACH ROW EXECUTE PROCEDURE budget.second_balance(user_id);
+  FOR EACH ROW EXECUTE PROCEDURE budget.second_balance();
+
+  drop trigger second_balance on  budget.balance;
 
 
 

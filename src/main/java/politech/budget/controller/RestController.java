@@ -137,15 +137,15 @@ public class RestController {
      * Balance
      */
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/balance/{userName}", method = RequestMethod.GET)
+    @RequestMapping(value = "/balance/{userId}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<Balance> getBalaceByUserName(@PathVariable("userName") String userName) {
-        return dao.findBalanceByUserName(userName);
+    public List<Balance> getBalaceByUserName(@PathVariable("userId") Integer userId) {
+        return dao.findBalanceByUserName(userId);
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/balance/{userName}", method = RequestMethod.POST)
+    @RequestMapping(value = "/balance", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public Balance postArticle(@RequestBody Balance balance) {
@@ -154,11 +154,11 @@ public class RestController {
 
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/balance", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/balance/{userId}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void deleteArticle(@RequestBody Balance balance) {
-        dao.deleteBalance(balance);
+    public void deleteArticle(@PathVariable("userId") Integer userId) {
+        dao.deleteBalance(userId);
     }
 
     /*

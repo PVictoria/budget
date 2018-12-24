@@ -1,6 +1,7 @@
 package politech.budget.service;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
@@ -31,4 +32,14 @@ public interface OperationsRepository extends JpaRepository<Operation, Integer> 
                                                                      @Param("articleId") Integer articleId,
                                                                      @Param("startTime") Date startTime,
                                                                      @Param("endTime") Date endTime);
+
+    @Modifying
+    @Query("UPDATE Operation o SET o.balanceId = :balanceId WHERE o.id = :operationId")
+    int updateBalance(@Param("operationId") Integer operationId,
+                      @Param("balanceId") Integer balanceId);
+
+    @Modifying
+    @Query("UPDATE Operation o SET o.balanceId = NULL WHERE o.balanceId = :balanceId")
+    int deleteBalance(@Param("balanceId") Integer balanceId);
+
 }

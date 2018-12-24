@@ -15,4 +15,7 @@ public interface BalanceRepository extends JpaRepository<Balance, Integer> {
 
     @Query("SELECT b FROM Balance b WHERE b.userId = :userId")
     List<Balance> findBalanceByUserId(@Param("userId") Integer userId);
+
+    @Query("SELECT b FROM Balance b WHERE b.id = (SELECT max (bb.id) FROM Balance bb WHERE bb.userId = :userId)")
+    Balance getLastBalance(@Param("userId") Integer userId);
 }
