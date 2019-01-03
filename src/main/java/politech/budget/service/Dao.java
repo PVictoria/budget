@@ -10,6 +10,7 @@ import politech.budget.dto.*;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -165,6 +166,30 @@ public class Dao {
         Balance balance = balanceRepository.getLastBalance(userId);
         operationsRepository.deleteBalance(balance.getId());
         balanceRepository.delete(balance);
+    }
+
+    public List<BarChart> getBarChartStatistics(Integer userId, String time) {
+        List<BarChart> barChartList = new ArrayList<>();
+        if (time.equals("allTime")) {
+            List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
+            balanceByUserId.forEach(balance -> {
+                BarChart barChart = new BarChart();
+                barChart.setText(balance.getCreateDate().toString().substring(0, 10));
+                barChart.setValue(balance.getCredit());
+                barChartList.add(barChart);
+            });
+        } else if (time.equals("year")) {
+            List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
+            balanceByUserId.stream()
+                    .filter(balance -> (LocalDateTime.now().getYear() == new Date(balance.getCreateDate().getTime()).getYear() + 1900))
+                    .forEach(balance -> {
+                        BarChart barChart = new BarChart();
+                        barChart.setText(balance.getCreateDate().toString().substring(0, 10));
+                        barChart.setValue(balance.getCredit());
+                        barChartList.add(barChart);
+                    });
+        }
+        return barChartList;
     }
 
 

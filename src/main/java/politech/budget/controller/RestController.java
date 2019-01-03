@@ -164,5 +164,13 @@ public class RestController {
     /*
      * Statistics
      */
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/statistics/bar/{userId}/{time}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<BarChart> getBarStatistics(@PathVariable("userId") Integer userId,
+                                           @PathVariable("time") String time) {
+        return dao.getBarChartStatistics(userId, time);
+    }
 
 }
