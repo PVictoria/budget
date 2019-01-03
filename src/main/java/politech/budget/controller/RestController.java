@@ -46,6 +46,7 @@ public class RestController {
     public User getUser(@PathVariable("id") Integer id) {
         return dao.getUser(id);
     }
+
     /*
      * Article
      */
@@ -171,6 +172,16 @@ public class RestController {
     public List<BarChart> getBarStatistics(@PathVariable("userId") Integer userId,
                                            @PathVariable("time") String time) {
         return dao.getBarChartStatistics(userId, time);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/statistics/line/{userId}/{time}/article/{articleName}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<LineChart> getLineStatistics(@PathVariable("userId") Integer userId,
+                                             @PathVariable("time") String time,
+                                             @PathVariable("articleName") String articleName) {
+        return dao.getLineChartStatistics(userId, time, articleName);
     }
 
 }

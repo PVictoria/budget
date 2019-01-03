@@ -170,14 +170,13 @@ public class Dao {
 
     public List<BarChart> getBarChartStatistics(Integer userId, String time) {
         List<BarChart> barChartList = new ArrayList<>();
+        List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
         if (time.equals("allTime")) {
-            List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
             balanceByUserId.forEach(balance -> {
                 BarChart barChart = buildBarChart(balance);
                 barChartList.add(barChart);
             });
         } else if (time.equals("year")) {
-            List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
             balanceByUserId.stream()
                     .filter(balance -> (LocalDateTime.now().getYear() == new Date(balance.getCreateDate().getTime()).getYear() + 1900))
                     .forEach(balance -> {
@@ -186,6 +185,46 @@ public class Dao {
                     });
         }
         return barChartList;
+    }
+
+    public List<LineChart> getLineChartStatistics(Integer userId, String time, String articleName) {
+        List<LineChart> lineChartList = new ArrayList<>();
+        Integer articleId = articleRepository.findArticleByName(articleName).getId();
+        List<Operation> operationsByUserIdAndArticleId = operationsRepository.findOperationsByUserIdAndArticleId(userId, articleId);
+        switch (time) {
+            case "allTime":
+                operationsByUserIdAndArticleId.forEach(operation -> {
+                    LineChart lineChart = buildLineChart(operation);
+                    lineChartList.add(lineChart);
+                });
+                break;
+            case "year":
+                operationsByUserIdAndArticleId.stream()
+                        .filter(operation -> (LocalDateTime.now().getYear() == new Date(operation.getCreateDate().getTime()).getYear() + 1900))
+                        .forEach(operation -> {
+                            LineChart lineChart = buildLineChart(operation);
+                            lineChartList.add(lineChart);
+                        });
+                break;
+            case "month":
+                operationsByUserIdAndArticleId.stream()
+                        .filter(operation -> (LocalDateTime.now().getYear() == new Date(operation.getCreateDate().getTime()).getYear() + 1900))
+                        .filter(operation -> (LocalDateTime.now().getMonth().getValue() == operation.getCreateDate().getMonth()))
+                        .forEach(operation -> {
+                            LineChart lineChart = buildLineChart(operation);
+                            lineChartList.add(lineChart);
+                        });
+                break;
+        }
+        return lineChartList;
+    }
+
+    private LineChart buildLineChart(Operation operation) {
+        LineChart lineChart = new LineChart();
+        lineChart.setXDate(operation.getCreateDate().toLocalDateTime().toLocalDate().toString());
+        lineChart.setCredit(nonNull(operation.getCredit()) ? operation.getCredit() : 0);
+        lineChart.setDebit(operation.getDebit());
+        return lineChart;
     }
 
     private BarChart buildBarChart(Balance balance) {
