@@ -173,9 +173,7 @@ public class Dao {
         if (time.equals("allTime")) {
             List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
             balanceByUserId.forEach(balance -> {
-                BarChart barChart = new BarChart();
-                barChart.setText(balance.getCreateDate().toString().substring(0, 10));
-                barChart.setValue(balance.getCredit());
+                BarChart barChart = buildBarChart(balance);
                 barChartList.add(barChart);
             });
         } else if (time.equals("year")) {
@@ -183,13 +181,20 @@ public class Dao {
             balanceByUserId.stream()
                     .filter(balance -> (LocalDateTime.now().getYear() == new Date(balance.getCreateDate().getTime()).getYear() + 1900))
                     .forEach(balance -> {
-                        BarChart barChart = new BarChart();
-                        barChart.setText(balance.getCreateDate().toString().substring(0, 10));
-                        barChart.setValue(balance.getCredit());
+                        BarChart barChart = buildBarChart(balance);
                         barChartList.add(barChart);
                     });
         }
         return barChartList;
+    }
+
+    private BarChart buildBarChart(Balance balance) {
+        BarChart barChart = new BarChart();
+        barChart.setText(balance.getCreateDate().toString().substring(0, 10));
+        barChart.setCredit(balance.getCredit());
+        barChart.setDebit(balance.getDebit());
+        barChart.setAmount(balance.getAmount());
+        return barChart;
     }
 
 

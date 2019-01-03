@@ -8,5 +8,7 @@ import lombok.Setter;
 public class BarChart {
 
     private String text;
-    private Integer value;
+    private Integer credit;
+    private Integer debit;
+    private Integer amount;
 }
