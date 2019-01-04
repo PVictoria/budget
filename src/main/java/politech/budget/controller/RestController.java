@@ -184,4 +184,13 @@ public class RestController {
         return dao.getLineChartStatistics(userId, time, articleName);
     }
 
+    @CrossOrigin(origins = "http://localhost:8080")
+    @RequestMapping(value = "/statistics/pie/{userId}/{time}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<PieChart> getPieStatistics(@PathVariable("userId") Integer userId,
+                                           @PathVariable("time") String month) {
+        return dao.getPieChartStatistics(userId, month);
+    }
+
 }

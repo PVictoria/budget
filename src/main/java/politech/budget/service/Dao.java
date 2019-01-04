@@ -236,5 +236,39 @@ public class Dao {
         return barChart;
     }
 
+    public List<PieChart> getPieChartStatistics(Integer userId, String monthYear) {
+        List<PieChart> pieChartList = new ArrayList<>();
+
+
+        Date date = new Date();
+        date.setMonth(Integer.valueOf(monthYear.split("-")[0]) - 1);
+        date.setYear(Integer.valueOf(monthYear.split("-")[1]) - 1900);
+        int lastDate = getLastDate2(date);
+        LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
+        Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
+        Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(userId, date1, date2);
+        operations.forEach(operation -> {
+            String articleName = articleRepository.findById(operation.getArticleId()).get().getName();
+            PieChart pieChart = buildPieChart(operation, articleName);
+            pieChartList.add(pieChart);
+        });
+        return pieChartList;
+    }
+
+    private PieChart buildPieChart(Operation operation, String articleName) {
+        PieChart pieChart = new PieChart();
+        pieChart.setName(articleName);
+        pieChart.setValue(nonNull(operation.getCredit()) ? operation.getCredit() : 0);
+        return pieChart;
+    }
+
+    //todo: cast dates correctly, 4-6-9 incorrect
+    private int getLastDate2(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(date.getYear(), date.getMonth() + 1, date.getDay());
+        return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+    }
 
 }
