@@ -7,12 +7,16 @@ import org.springframework.transaction.annotation.Transactional;
 import politech.budget.builder.OperationBuilder;
 import politech.budget.builder.OperationGetBuilder;
 import politech.budget.dto.*;
+import politech.budget.helper.CalendarUtils;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -26,6 +30,7 @@ public class Dao {
     private final BalanceRepository balanceRepository;
     private final OperationBuilder operationBuilder;
     private final OperationGetBuilder operationGetBuilder;
+    private final CalendarUtils calendarUtils;
 
     public User getUser(Integer id) {
         return userRepository.findUserById(id);
@@ -86,7 +91,7 @@ public class Dao {
     }
 
     public List<OperationGet> findOperationsByUserIdAndCreationTime(Integer userId, Date date) {
-        int lastDate = getLastDate(date);
+        int lastDate = calendarUtils.getLastDay(date.getMonth());
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
@@ -96,7 +101,7 @@ public class Dao {
     }
 
     public List<OperationGet> findOperationsByUserIdAndArticleIdAndCreationTime(Integer userId, String articleName, Date date) {
-        int lastDate = getLastDate(date);
+        int lastDate = calendarUtils.getLastDay(date.getMonth());
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -104,12 +109,6 @@ public class Dao {
         Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         List<Operation> operations = operationsRepository.findOperationsByUserIdAAndArticleIdAndCreateDate(userId, articleId, date1, date2);
         return getOperationGet(operations);
-    }
-
-    private int getLastDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(date.getYear(), date.getMonth(), date.getDay());
-        return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
     @Transactional
@@ -138,7 +137,7 @@ public class Dao {
     public Balance postBalance(Balance balance) {
 
         Date date = balance.getCreateDate();
-        int lastDate = getLastDate(date);
+        int lastDate = calendarUtils.getLastDay(date.getMonth());
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
@@ -243,7 +242,7 @@ public class Dao {
         Date date = new Date();
         date.setMonth(Integer.valueOf(monthYear.split("-")[0]) - 1);
         date.setYear(Integer.valueOf(monthYear.split("-")[1]) - 1900);
-        int lastDate = getLastDate2(date);
+        int lastDate = calendarUtils.getLastDay(date.getMonth());
         LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
         Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
         LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
@@ -263,12 +262,4 @@ public class Dao {
         pieChart.setValue(nonNull(operation.getCredit()) ? operation.getCredit() : 0);
         return pieChart;
     }
-
-    //todo: cast dates correctly, 4-6-9 incorrect
-    private int getLastDate2(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(date.getYear(), date.getMonth() + 1, date.getDay());
-        return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-    }
-
 }
