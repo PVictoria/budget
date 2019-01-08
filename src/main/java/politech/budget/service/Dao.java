@@ -9,8 +9,6 @@ import politech.budget.builder.OperationGetBuilder;
 import politech.budget.dto.*;
 import politech.budget.helper.CalendarUtils;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -90,24 +88,18 @@ public class Dao {
         return getOperationGet(operations);
     }
 
-    public List<OperationGet> findOperationsByUserIdAndCreationTime(Integer userId, Date date) {
-        int lastDate = calendarUtils.getLastDay(date.getMonth());
-        LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
-        Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
-        Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(userId, date1, date2);
+    public List<OperationGet> findOperationsByUserIdAndCreationTime(Integer userId, String monthYear) {
+        CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
+        List<Operation> operations = operationsRepository.
+                findOperationsByUserIdAndCreateDate(userId, dateUtils.getDateFrom(), dateUtils.getDateFrom());
         return getOperationGet(operations);
     }
 
-    public List<OperationGet> findOperationsByUserIdAndArticleIdAndCreationTime(Integer userId, String articleName, Date date) {
-        int lastDate = calendarUtils.getLastDay(date.getMonth());
+    public List<OperationGet> findOperationsByUserIdAndArticleIdAndCreationTime(Integer userId, String articleName, String monthYear) {
+        CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
-        LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
-        Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
-        Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        List<Operation> operations = operationsRepository.findOperationsByUserIdAAndArticleIdAndCreateDate(userId, articleId, date1, date2);
+        List<Operation> operations = operationsRepository.
+                findOperationsByUserIdAAndArticleIdAndCreateDate(userId, articleId, dateUtils.getDateFrom(), dateUtils.getDateFrom());
         return getOperationGet(operations);
     }
 
@@ -134,23 +126,17 @@ public class Dao {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Balance postBalance(Balance balance) {
-
-        Date date = balance.getCreateDate();
-        int lastDate = calendarUtils.getLastDay(date.getMonth());
-        LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
-        Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
-        Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(balance.getUserId(), date1, date2);
+    public Balance postBalance(String monthYear, Balance balance) {
+        CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
+        Date dateTo = dateUtils.getDateTo();
+        List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(balance.getUserId(), dateUtils.getDateFrom(), dateUtils.getDateTo());
         int credit = 0;
         int debit = 0;
         for (Operation operation : operations) {
             credit += (nonNull(operation.getCredit()) ? operation.getCredit() : 0);
             debit += (nonNull(operation.getDebit()) ? operation.getDebit() : 0);
         }
-
-        balance.setCreateDate(new Timestamp(date2.getTime()));
+        balance.setCreateDate(dateTo.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         balance.setCredit(credit);
         balance.setDebit(debit);
         balance.setAmount(debit - credit);
@@ -177,7 +163,7 @@ public class Dao {
             });
         } else if (time.equals("year")) {
             balanceByUserId.stream()
-                    .filter(balance -> (LocalDateTime.now().getYear() == new Date(balance.getCreateDate().getTime()).getYear() + 1900))
+                    .filter(balance -> (LocalDateTime.now().getYear() == balance.getCreateDate().getYear()))
                     .forEach(balance -> {
                         BarChart barChart = buildBarChart(balance);
                         barChartList.add(barChart);
@@ -239,15 +225,8 @@ public class Dao {
         List<PieChart> pieChartList = new ArrayList<>();
 
 
-        Date date = new Date();
-        date.setMonth(Integer.valueOf(monthYear.split("-")[0]) - 1);
-        date.setYear(Integer.valueOf(monthYear.split("-")[1]) - 1900);
-        int lastDate = calendarUtils.getLastDay(date.getMonth());
-        LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
-        Date date1 = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
-        Date date2 = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(userId, date1, date2);
+        CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
+        List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(userId, dateUtils.getDateFrom(), dateUtils.getDateTo());
         operations.forEach(operation -> {
             String articleName = articleRepository.findById(operation.getArticleId()).get().getName();
             PieChart pieChart = buildPieChart(operation, articleName);

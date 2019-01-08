@@ -8,9 +8,6 @@ import politech.budget.builder.UserBuilder;
 import politech.budget.dto.*;
 import politech.budget.service.Dao;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -94,27 +91,22 @@ public class RestController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/operation/{userId}/article/{articleName}/date/{date}", method = RequestMethod.GET)
+    @RequestMapping(value = "/operation/{userId}/article/{articleName}/monthYear/{monthYear}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<OperationGet> getOperationsArticleBetweenDates(@PathVariable("userId") Integer userId,
                                                                @PathVariable("articleName") String articleName,
-                                                               @PathVariable("date") String date) throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-        Date date1 = format.parse(date);
-        return dao.findOperationsByUserIdAndArticleIdAndCreationTime(userId, articleName, date1);
+                                                               @PathVariable("monthYear") String monthYear) {
+        return dao.findOperationsByUserIdAndArticleIdAndCreationTime(userId, articleName, monthYear);
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/operation/{userId}/date/{date}", method = RequestMethod.GET)
+    @RequestMapping(value = "/operation/{userId}/monthYear/{monthYear}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<OperationGet> getOperationsBetweenDates(@PathVariable("userId") Integer userId,
-                                                        @PathVariable("date") String date) throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date1 = format.parse(date);
-        return dao.findOperationsByUserIdAndCreationTime(userId, date1);
+                                                        @PathVariable("monthYear") String monthYear) {
+        return dao.findOperationsByUserIdAndCreationTime(userId, monthYear);
     }
 
 
@@ -146,11 +138,11 @@ public class RestController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/balance", method = RequestMethod.POST)
+    @RequestMapping(value = "/balance/{monthYear}", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public Balance postArticle(@RequestBody Balance balance) {
-        return dao.postBalance(balance);
+    public Balance postArticle(@PathVariable("monthYear") String monthYear, @RequestBody Balance balance) {
+        return dao.postBalance(monthYear, balance);
     }
 
 
@@ -185,12 +177,12 @@ public class RestController {
     }
 
     @CrossOrigin(origins = "http://localhost:8080")
-    @RequestMapping(value = "/statistics/pie/{userId}/{time}", method = RequestMethod.GET)
+    @RequestMapping(value = "/statistics/pie/{userId}/{monthYear}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<PieChart> getPieStatistics(@PathVariable("userId") Integer userId,
-                                           @PathVariable("time") String month) {
-        return dao.getPieChartStatistics(userId, month);
+                                           @PathVariable("monthYear") String monthYear) {
+        return dao.getPieChartStatistics(userId, monthYear);
     }
 
 }

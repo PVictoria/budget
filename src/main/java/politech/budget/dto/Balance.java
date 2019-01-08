@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 
 
 @Getter
@@ -16,7 +16,7 @@ public class Balance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Timestamp createDate;
+    private LocalDate createDate;
     private Integer debit;
     private Integer credit;
     private Integer amount;

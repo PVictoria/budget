@@ -1,6 +1,11 @@
 package politech.budget.helper;
 
+import lombok.Getter;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 @Component
 public class CalendarUtils {
@@ -33,4 +38,30 @@ public class CalendarUtils {
         }
         return null;
     }
+
+    public class DateUtils {
+        private String monthYear;
+        @Getter
+        private Date dateFrom;
+        @Getter
+        private Date dateTo;
+
+        public DateUtils(String monthYear) {
+            this.monthYear = monthYear;
+        }
+
+        public DateUtils invoke() {
+            Date date = new Date();
+            date.setMonth(Integer.valueOf(monthYear.split("-")[0]) - 1);
+            date.setYear(Integer.valueOf(monthYear.split("-")[1]) - 1900);
+            int lastDate = getLastDay(date.getMonth());
+            LocalDate startDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
+            dateFrom = Date.from(startDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            LocalDate endDay = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(lastDate);
+            dateTo = Date.from(endDay.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            return this;
+        }
+    }
+
+
 }
