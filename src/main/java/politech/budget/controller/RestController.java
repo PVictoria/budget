@@ -9,6 +9,7 @@ import politech.budget.dto.*;
 import politech.budget.service.Dao;
 
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Controller
@@ -180,8 +181,8 @@ public class RestController {
     @RequestMapping(value = "/statistics/pie/{userId}/{monthYear}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<PieChart> getPieStatistics(@PathVariable("userId") Integer userId,
-                                           @PathVariable("monthYear") String monthYear) {
+    public Set<PieChart> getPieStatistics(@PathVariable("userId") Integer userId,
+                                          @PathVariable("monthYear") String monthYear) {
         return dao.getPieChartStatistics(userId, monthYear);
     }
 

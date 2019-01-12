@@ -11,10 +11,7 @@ import politech.budget.helper.CalendarUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -221,16 +218,18 @@ public class Dao {
         return barChart;
     }
 
-    public List<PieChart> getPieChartStatistics(Integer userId, String monthYear) {
-        List<PieChart> pieChartList = new ArrayList<>();
-
-
+    public Set<PieChart> getPieChartStatistics(Integer userId, String monthYear) {
+        Set<PieChart> pieChartList = new HashSet<>();
         CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
         List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(userId, dateUtils.getDateFrom(), dateUtils.getDateTo());
         operations.forEach(operation -> {
             String articleName = articleRepository.findById(operation.getArticleId()).get().getName();
             PieChart pieChart = buildPieChart(operation, articleName);
-            pieChartList.add(pieChart);
+            pieChartList.stream().filter(pieChart1 -> pieChart1.getName().equals(articleName)).findAny()
+                    .ifPresent(pieChart1 -> pieChart1.setValue(pieChart1.getValue() + pieChart.getValue()));
+            if (pieChartList.stream().noneMatch(pieChart1 -> pieChart1.getName().equals(articleName))) {
+                pieChartList.add(pieChart);
+            }
         });
         return pieChartList;
     }
