@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 public class LineChart {
     private String xDate;
-    private Integer credit;
-    private Integer debit;
+    private Double credit;
+    private Double debit;
 }

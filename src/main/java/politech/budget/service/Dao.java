@@ -88,7 +88,7 @@ public class Dao {
     public List<OperationGet> findOperationsByUserIdAndCreationTime(Integer userId, String monthYear) {
         CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
         List<Operation> operations = operationsRepository.
-                findOperationsByUserIdAndCreateDate(userId, dateUtils.getDateFrom(), dateUtils.getDateFrom());
+                findOperationsByUserIdAndCreateDate(userId, dateUtils.getDateFrom(), dateUtils.getDateTo());
         return getOperationGet(operations);
     }
 
@@ -96,7 +96,7 @@ public class Dao {
         CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
         List<Operation> operations = operationsRepository.
-                findOperationsByUserIdAAndArticleIdAndCreateDate(userId, articleId, dateUtils.getDateFrom(), dateUtils.getDateFrom());
+                findOperationsByUserIdAAndArticleIdAndCreateDate(userId, articleId, dateUtils.getDateFrom(), dateUtils.getDateTo());
         return getOperationGet(operations);
     }
 
@@ -127,8 +127,8 @@ public class Dao {
         CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
         Date dateTo = dateUtils.getDateTo();
         List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(balance.getUserId(), dateUtils.getDateFrom(), dateUtils.getDateTo());
-        int credit = 0;
-        int debit = 0;
+        Double credit = 0.0;
+        Double debit = 0.0;
         for (Operation operation : operations) {
             credit += (nonNull(operation.getCredit()) ? operation.getCredit() : 0);
             debit += (nonNull(operation.getDebit()) ? operation.getDebit() : 0);
@@ -173,6 +173,7 @@ public class Dao {
         List<LineChart> lineChartList = new ArrayList<>();
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
         List<Operation> operationsByUserIdAndArticleId = operationsRepository.findOperationsByUserIdAndArticleId(userId, articleId);
+        operationsByUserIdAndArticleId.sort(Comparator.comparing(Operation::getCreateDate));
         switch (time) {
             case "allTime":
                 operationsByUserIdAndArticleId.forEach(operation -> {
@@ -191,7 +192,7 @@ public class Dao {
             case "month":
                 operationsByUserIdAndArticleId.stream()
                         .filter(operation -> (LocalDateTime.now().getYear() == new Date(operation.getCreateDate().getTime()).getYear() + 1900))
-                        .filter(operation -> (LocalDateTime.now().getMonth().getValue() == operation.getCreateDate().getMonth()))
+                        .filter(operation -> (LocalDateTime.now().getMonth().getValue() == operation.getCreateDate().getMonth() + 1))
                         .forEach(operation -> {
                             LineChart lineChart = buildLineChart(operation);
                             lineChartList.add(lineChart);
@@ -204,7 +205,7 @@ public class Dao {
     private LineChart buildLineChart(Operation operation) {
         LineChart lineChart = new LineChart();
         lineChart.setXDate(operation.getCreateDate().toLocalDateTime().toLocalDate().toString());
-        lineChart.setCredit(nonNull(operation.getCredit()) ? operation.getCredit() : 0);
+        lineChart.setCredit(nonNull(operation.getCredit()) ? operation.getCredit() : 0.0);
         lineChart.setDebit(operation.getDebit());
         return lineChart;
     }

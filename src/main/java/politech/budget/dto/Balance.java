@@ -17,8 +17,8 @@ public class Balance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private LocalDate createDate;
-    private Integer debit;
-    private Integer credit;
-    private Integer amount;
+    private Double debit;
+    private Double credit;
+    private Double amount;
     private Integer userId;
 }

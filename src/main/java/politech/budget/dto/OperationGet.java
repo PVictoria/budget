@@ -9,8 +9,8 @@ public class OperationGet {
 
     private Integer id;
     private String articleName;
-    private Integer debit;
-    private Integer credit;
+    private Double debit;
+    private Double credit;
     private String createDate;
     private Boolean balance;
 }

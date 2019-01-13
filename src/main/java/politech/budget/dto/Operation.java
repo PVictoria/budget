@@ -16,8 +16,8 @@ public class Operation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer articleId;
-    private Integer debit;
-    private Integer credit;
+    private Double debit;
+    private Double credit;
     private Timestamp createDate;
     private Integer balanceId;
     private Integer userId;

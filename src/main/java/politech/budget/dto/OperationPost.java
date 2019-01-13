@@ -10,8 +10,8 @@ import java.sql.Timestamp;
 public class OperationPost {
 
     private String articleName;
-    private Integer debit;
-    private Integer credit;
+    private Double debit;
+    private Double credit;
     private Timestamp createDate;
     private Integer userId;
 }

@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class PieChart {
     private String name;
-    private Integer value;
+    private Double value;
 }
