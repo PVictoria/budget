@@ -153,6 +153,7 @@ public class Dao {
     public List<BarChart> getBarChartStatistics(Integer userId, String time) {
         List<BarChart> barChartList = new ArrayList<>();
         List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
+        balanceByUserId.sort(Comparator.comparing(Balance::getCreateDate));
         if (time.equals("allTime")) {
             balanceByUserId.forEach(balance -> {
                 BarChart barChart = buildBarChart(balance);
