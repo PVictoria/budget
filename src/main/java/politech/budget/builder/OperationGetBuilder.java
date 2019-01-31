@@ -16,7 +16,7 @@ import static java.util.Objects.nonNull;
 @Component
 public class OperationGetBuilder {
 
-    public OperationGet build(Operation operation, Article article) {
+    private OperationGet build(Operation operation, Article article) {
         OperationGet operationGet = new OperationGet();
         operationGet.setId(operation.getId());
         operationGet.setArticleName(article.getName());

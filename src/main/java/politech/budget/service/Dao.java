@@ -2,10 +2,8 @@ package politech.budget.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import politech.budget.builder.OperationBuilder;
-import politech.budget.builder.OperationGetBuilder;
+import politech.budget.builder.*;
 import politech.budget.dto.*;
 import politech.budget.helper.CalendarUtils;
 
@@ -26,6 +24,9 @@ public class Dao {
     private final OperationBuilder operationBuilder;
     private final OperationGetBuilder operationGetBuilder;
     private final CalendarUtils calendarUtils;
+    private final PieChartBuilder pieChartBuilder;
+    private final LineChartBuilder lineChartBuilder;
+    private final BarChartBuilder barChartBuilder;
 
     public User getUser(Integer id) {
         return userRepository.findUserById(id);
@@ -37,10 +38,6 @@ public class Dao {
         return userRepository.findUserByNameAndPassword(name, password);
     }
 
-    public User getUserByName(String userName) {
-        return userRepository.findUserByName(userName);
-    }
-
     @Transactional
     public User postUser(User user) {
         return userRepository.saveAndFlush(user);
@@ -50,7 +47,7 @@ public class Dao {
         return articleRepository.getAll();
     }
 
-    public Article getArticlesByName(String name) {
+    private Article getArticlesByName(String name) {
         return articleRepository.findArticleByName(name);
     }
 
@@ -59,7 +56,7 @@ public class Dao {
         return articleRepository.saveAndFlush(article);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void deleteArticle(String name) {
         Article article = getArticlesByName(name);
         articleRepository.delete(article);
@@ -71,7 +68,8 @@ public class Dao {
         return getOperationGet(operations);
     }
 
-    private List<OperationGet> getOperationGet(List<Operation> operations) {
+    @Transactional
+    public List<OperationGet> getOperationGet(List<Operation> operations) {
         List<Integer> articleIds = operations.stream()
                 .mapToInt(Operation::getArticleId).boxed().collect(Collectors.toList());
         List<Article> articles = new ArrayList<>();
@@ -79,12 +77,14 @@ public class Dao {
         return operationGetBuilder.buildList(operations, articles);
     }
 
+    @Transactional
     public List<OperationGet> findOperationsByUserIdAndArticle(Integer userId, String articleName) {
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
         List<Operation> operations = operationsRepository.findOperationsByUserIdAndArticleId(userId, articleId);
         return getOperationGet(operations);
     }
 
+    @Transactional
     public List<OperationGet> findOperationsByUserIdAndCreationTime(Integer userId, String monthYear) {
         CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
         List<Operation> operations = operationsRepository.
@@ -111,10 +111,7 @@ public class Dao {
         operationsRepository.deleteById(operationId);
     }
 
-    public List<Balance> findBalanceByUserId(Integer userId) {
-        return balanceRepository.findBalanceByUserId(userId);
-    }
-
+    @Transactional
     public List<Balance> findBalanceByUserName(Integer userId) {
         List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
         balanceByUserId.sort(Comparator.comparing(Balance::getId).reversed());
@@ -122,7 +119,7 @@ public class Dao {
 
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public Balance postBalance(String monthYear, Balance balance) {
         CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
         Date dateTo = dateUtils.getDateTo();
@@ -143,33 +140,35 @@ public class Dao {
         return balance1;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void deleteBalance(Integer userId) {
         Balance balance = balanceRepository.getLastBalance(userId);
         operationsRepository.deleteBalance(balance.getId());
         balanceRepository.delete(balance);
     }
 
+    @Transactional
     public List<BarChart> getBarChartStatistics(Integer userId, String time) {
         List<BarChart> barChartList = new ArrayList<>();
         List<Balance> balanceByUserId = balanceRepository.findBalanceByUserId(userId);
         balanceByUserId.sort(Comparator.comparing(Balance::getCreateDate));
         if (time.equals("allTime")) {
             balanceByUserId.forEach(balance -> {
-                BarChart barChart = buildBarChart(balance);
+                BarChart barChart = barChartBuilder.build(balance);
                 barChartList.add(barChart);
             });
         } else if (time.equals("year")) {
             balanceByUserId.stream()
                     .filter(balance -> (LocalDateTime.now().getYear() == balance.getCreateDate().getYear()))
                     .forEach(balance -> {
-                        BarChart barChart = buildBarChart(balance);
+                        BarChart barChart = barChartBuilder.build(balance);
                         barChartList.add(barChart);
                     });
         }
         return barChartList;
     }
 
+    @Transactional
     public List<LineChart> getLineChartStatistics(Integer userId, String time, String articleName) {
         List<LineChart> lineChartList = new ArrayList<>();
         Integer articleId = articleRepository.findArticleByName(articleName).getId();
@@ -178,7 +177,7 @@ public class Dao {
         switch (time) {
             case "allTime":
                 operationsByUserIdAndArticleId.forEach(operation -> {
-                    LineChart lineChart = buildLineChart(operation);
+                    LineChart lineChart = lineChartBuilder.build(operation);
                     lineChartList.add(lineChart);
                 });
                 break;
@@ -186,7 +185,7 @@ public class Dao {
                 operationsByUserIdAndArticleId.stream()
                         .filter(operation -> (LocalDateTime.now().getYear() == new Date(operation.getCreateDate().getTime()).getYear() + 1900))
                         .forEach(operation -> {
-                            LineChart lineChart = buildLineChart(operation);
+                            LineChart lineChart = lineChartBuilder.build(operation);
                             lineChartList.add(lineChart);
                         });
                 break;
@@ -195,7 +194,7 @@ public class Dao {
                         .filter(operation -> (LocalDateTime.now().getYear() == new Date(operation.getCreateDate().getTime()).getYear() + 1900))
                         .filter(operation -> (LocalDateTime.now().getMonth().getValue() == operation.getCreateDate().getMonth() + 1))
                         .forEach(operation -> {
-                            LineChart lineChart = buildLineChart(operation);
+                            LineChart lineChart = lineChartBuilder.build(operation);
                             lineChartList.add(lineChart);
                         });
                 break;
@@ -203,30 +202,14 @@ public class Dao {
         return lineChartList;
     }
 
-    private LineChart buildLineChart(Operation operation) {
-        LineChart lineChart = new LineChart();
-        lineChart.setXDate(operation.getCreateDate().toLocalDateTime().toLocalDate().toString());
-        lineChart.setCredit(nonNull(operation.getCredit()) ? operation.getCredit() : 0.0);
-        lineChart.setDebit(operation.getDebit());
-        return lineChart;
-    }
-
-    private BarChart buildBarChart(Balance balance) {
-        BarChart barChart = new BarChart();
-        barChart.setText(balance.getCreateDate().toString().substring(0, 10));
-        barChart.setCredit(balance.getCredit());
-        barChart.setDebit(balance.getDebit());
-        barChart.setAmount(balance.getAmount());
-        return barChart;
-    }
-
+    @Transactional
     public Set<PieChart> getPieChartStatistics(Integer userId, String monthYear) {
         Set<PieChart> pieChartList = new HashSet<>();
         CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
         List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(userId, dateUtils.getDateFrom(), dateUtils.getDateTo());
         operations.forEach(operation -> {
             String articleName = articleRepository.findById(operation.getArticleId()).get().getName();
-            PieChart pieChart = buildPieChart(operation, articleName);
+            PieChart pieChart = pieChartBuilder.build(operation, articleName);
             pieChartList.stream().filter(pieChart1 -> pieChart1.getName().equals(articleName)).findAny()
                     .ifPresent(pieChart1 -> pieChart1.setValue(pieChart1.getValue() + pieChart.getValue()));
             if (pieChartList.stream().noneMatch(pieChart1 -> pieChart1.getName().equals(articleName))) {
@@ -234,12 +217,5 @@ public class Dao {
             }
         });
         return pieChartList;
-    }
-
-    private PieChart buildPieChart(Operation operation, String articleName) {
-        PieChart pieChart = new PieChart();
-        pieChart.setName(articleName);
-        pieChart.setValue(nonNull(operation.getCredit()) ? operation.getCredit() : 0);
-        return pieChart;
     }
 }
