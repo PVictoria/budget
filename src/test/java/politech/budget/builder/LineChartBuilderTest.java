@@ -20,6 +20,11 @@ public class LineChartBuilderTest {
     private LineChartBuilder lineChartBuilder;
 
     @Test
+    public void empty() {
+        //empty;
+    }
+
+    @Test
     public void build() {
         //given
         Operation operation = givenOperation();
