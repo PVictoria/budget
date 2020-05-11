@@ -7,6 +7,7 @@ import politech.budget.builder.*;
 import politech.budget.dto.*;
 import politech.budget.helper.CalendarUtils;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -73,7 +74,7 @@ public class Dao {
         List<Integer> articleIds = operations.stream()
                 .mapToInt(Operation::getArticleId).boxed().collect(Collectors.toList());
         List<Article> articles = new ArrayList<>();
-        articleIds.forEach(id -> articles.add(articleRepository.findById(id).get()));
+        articleIds.forEach(id -> articles.add(articleRepository.findById(id).orElse(null)));
         return operationGetBuilder.buildList(operations, articles);
     }
 
@@ -183,7 +184,7 @@ public class Dao {
                 break;
             case "year":
                 operationsByUserIdAndArticleId.stream()
-                        .filter(operation -> (LocalDateTime.now().getYear() == new Date(operation.getCreateDate().getTime()).getYear() + 1900))
+                        .filter(operation -> (LocalDateTime.now().getYear() == new Date(operation.getCreateDate().getTime()).toLocalDate().getYear() + 1900))
                         .forEach(operation -> {
                             LineChart lineChart = lineChartBuilder.build(operation);
                             lineChartList.add(lineChart);
@@ -191,8 +192,8 @@ public class Dao {
                 break;
             case "month":
                 operationsByUserIdAndArticleId.stream()
-                        .filter(operation -> (LocalDateTime.now().getYear() == new Date(operation.getCreateDate().getTime()).getYear() + 1900))
-                        .filter(operation -> (LocalDateTime.now().getMonth().getValue() == operation.getCreateDate().getMonth() + 1))
+                        .filter(operation -> (LocalDateTime.now().getYear() == new Date(operation.getCreateDate().getTime()).toLocalDate().getYear() + 1900))
+                        .filter(operation -> (LocalDateTime.now().getMonth().getValue() == operation.getCreateDate().toLocalDateTime().getMonth().getValue() + 1))
                         .forEach(operation -> {
                             LineChart lineChart = lineChartBuilder.build(operation);
                             lineChartList.add(lineChart);
@@ -208,7 +209,9 @@ public class Dao {
         CalendarUtils.DateUtils dateUtils = calendarUtils.new DateUtils(monthYear).invoke();
         List<Operation> operations = operationsRepository.findOperationsByUserIdAndCreateDate(userId, dateUtils.getDateFrom(), dateUtils.getDateTo());
         operations.forEach(operation -> {
-            String articleName = articleRepository.findById(operation.getArticleId()).get().getName();
+            String articleName = articleRepository.findById(operation.getArticleId())
+                    .map(Article::getName)
+                    .orElseThrow(() -> new RuntimeException("Статья расходов не найдена"));
             PieChart pieChart = pieChartBuilder.build(operation, articleName);
             pieChartList.stream().filter(pieChart1 -> pieChart1.getName().equals(articleName)).findAny()
                     .ifPresent(pieChart1 -> pieChart1.setValue(pieChart1.getValue() + pieChart.getValue()));

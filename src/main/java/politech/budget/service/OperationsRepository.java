@@ -35,11 +35,11 @@ public interface OperationsRepository extends JpaRepository<Operation, Integer> 
 
     @Modifying
     @Query("UPDATE Operation o SET o.balanceId = :balanceId WHERE o.id = :operationId")
-    int updateBalance(@Param("operationId") Integer operationId,
-                      @Param("balanceId") Integer balanceId);
+    void updateBalance(@Param("operationId") Integer operationId,
+                       @Param("balanceId") Integer balanceId);
 
     @Modifying
     @Query("UPDATE Operation o SET o.balanceId = NULL WHERE o.balanceId = :balanceId")
-    int deleteBalance(@Param("balanceId") Integer balanceId);
+    void deleteBalance(@Param("balanceId") Integer balanceId);
 
 }

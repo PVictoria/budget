@@ -134,7 +134,7 @@ public class RestController {
     @RequestMapping(value = "/balance/{userId}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<Balance> getBalaceByUserName(@PathVariable("userId") Integer userId) {
+    public List<Balance> getBalanceByUserName(@PathVariable("userId") Integer userId) {
         return dao.findBalanceByUserName(userId);
     }
 
